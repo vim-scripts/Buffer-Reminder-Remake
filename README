@@ -1,0 +1,19 @@
+This is a mirror of http://www.vim.org/scripts/script.php?script_id=2733
+
+Attention, names of variables have changed ! 
+
+this plugin is destine to people, which would like to save list of opened files on vim exit, and open them on vim enter. 
+Tested on Win32 platform, but on Linux it's must work too. 
+
+there is three variable which you should config: 
+
+let g:BufferReminder_SaveOpenedFilesListBUFFER=1  (def)       - if you like buffer one variant 
+let g:BufferReminder_SaveOpenedFilesListBUFFER=0                 - if you like tabs open variant 
+
+this option work only in tabs mode:
+let g:BufferReminder_removeNoNameBuffer=1    (def)            - if you hate NoName buffer, in this case it's satisfy you on 100% ! 
+let g:BufferReminder_removeNoNameBuffer=0                        - in this case, we will spare NoName buffer 
+
+let g:BufferReminder_openedFileBuffersList="pathToFileName"   - if you dont like default path of file 
+
+
