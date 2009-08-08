@@ -6,9 +6,17 @@
 
 "version 0.2 
 
+
+"skip load plugin if diff mode
+if &diff 
+     silent echo "skip"
+else
+
 if v:version < 700
 	finish
 endif
+
+syntax on
 
 "there is three variable which you may config:
 
@@ -39,7 +47,7 @@ if !exists('g:openedFileBuffersList')
         let g:openedFileBuffersList = $VIM .  "/vim_OpenedFilesList.txt"
         if has('win32')
             if $USERPROFILE != ''
-                let g:openedFileBuffersList = $USERPROFILE . "\vim_OpenedFilesList.txt"
+                let g:openedFileBuffersList = $USERPROFILE . "\\vim_OpenedFilesList.txt"
             endif
         endif
     endif
@@ -78,7 +86,7 @@ func! s:SaveOpenedFilesList()
     endwhile 
  
     if len(l:ListVariable) > 0 
-        let l:reminderVersion = " V.0.2 "
+        let l:reminderVersion = " V.0.3 "
         let l:informationString = "Buffer Reminder" . l:reminderVersion . strftime("%d.%m.%Y %X")  
         call insert(l:ListVariable, l:informationString)
         call writefile(l:ListVariable, g:openedFileBuffersList) 
@@ -129,6 +137,15 @@ func! s:OpenOpenedFilesList()
                         exe "tabedit " . l:fileLinesList[l:i] 
                     endif
 
+                        let l:extention = expand("%:e")
+
+                        "extention fix
+                        "if no ext, set vim hi"
+                        if l:extention == ''
+                            let l:extention = "vim"
+                        endif
+                        exe "set syntax=" . l:extention 
+
                     call add(l:ListOpenedBuffers, l:fileLinesList[l:i])
                     let l:i = l:i + 1 
  
@@ -170,3 +187,4 @@ autocmd VimEnter    * :call s:OpenOpenedFilesList()
 autocmd VimEnter    * :call s:removeNoNameBuffer() 
 "//---------------------------------------------------------------------------------
 
+endif
