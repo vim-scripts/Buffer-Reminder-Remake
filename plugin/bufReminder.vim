@@ -8,25 +8,22 @@
 
 
 "skip load plugin if diff mode
-if &diff 
-     silent echo "skip"
-else
+if !&diff 
 
 if v:version < 700
 	finish
 endif
 
-syntax on
-
 "there is three variable which you may config:
 
-"let g:SaveOpenedFilesListBUFFER=1              - if you like buffer one variant
-"let g:SaveOpenedFilesListBUFFER=0              - if you like tabs open variant
+"let g:BufferReminder_SaveOpenedFilesListBUFFER=1  (def)       - if you like buffer one variant
+"let g:BufferReminder_SaveOpenedFilesListBUFFER=0              - if you like tabs open variant
 
-"let g:openedFileBuffersList="pathToFileName"   - if you dont like default path of file
+"let g:BufferReminder_openedFileBuffersList="pathToFileName"   - if you dont like default path of file
 
-"let g:removeNoNameBuffer=1                     - if you hate NoName buffer, in this case it's satisfy you on 100% !
-"let g:removeNoNameBuffer=0                     - in this case, we will spare NoName buffer
+"let g:BufferReminder_removeNoNameBuffer=1    (def)            - if you hate NoName buffer, in this case it's satisfy you on 100% !
+"let g:BufferReminder_removeNoNameBuffer=0                     - in this case, we will spare NoName buffer
+"
 
 "
 "//---------------------------------------------------------------------------------
@@ -34,28 +31,34 @@ syntax on
 "//---------------------------------------------------------------------------------
 "//--------------------------------------------------------------------------------- 
  
+
 "//---------------------------------------------------------------------------------
-if !exists('g:removeNoNameBuffer') 
-  let g:removeNoNameBuffer = 1
+if !exists('g:BufferReminder_AllSyntaxOn') 
+  let g:BufferReminder_AllSyntaxOn = 1
 endif
 
 "//---------------------------------------------------------------------------------
-if !exists('g:openedFileBuffersList') 
+if !exists('g:BufferReminder_removeNoNameBuffer') 
+  let g:BufferReminder_removeNoNameBuffer = 1
+endif
+
+"//---------------------------------------------------------------------------------
+if !exists('g:BufferReminder_openedFileBuffersList') 
     if has('unix') || has('macunix')
-        let g:openedFileBuffersList = $HOME . "/vim_OpenedFilesList.txt"
+        let g:BufferReminder_openedFileBuffersList = $HOME . "/vim_OpenedFilesList.txt"
     else
-        let g:openedFileBuffersList = $VIM .  "/vim_OpenedFilesList.txt"
+        let g:BufferReminder_openedFileBuffersList = $VIM .  "/vim_OpenedFilesList.txt"
         if has('win32')
             if $USERPROFILE != ''
-                let g:openedFileBuffersList = $USERPROFILE . "\\vim_OpenedFilesList.txt"
+                let g:BufferReminder_openedFileBuffersList = $USERPROFILE . "\\vim_OpenedFilesList.txt"
             endif
         endif
     endif
 endif
 
 "//---------------------------------------------------------------------------------
-if !exists('g:SaveOpenedFilesListBUFFER') 
-  let g:SaveOpenedFilesListBUFFER = 0
+if !exists('g:BufferReminder_SaveOpenedFilesListBUFFER') 
+  let g:BufferReminder_SaveOpenedFilesListBUFFER = 0
 endif 
 
 "//--------------------------------------------------------------------------------- 
@@ -67,8 +70,8 @@ func! s:SaveOpenedFilesList()
     let l:bName = "" 
     let l:fullFilename = "" 
  
-    if filereadable(g:openedFileBuffersList) == 1     
-        call delete(g:openedFileBuffersList) 
+    if filereadable(g:BufferReminder_openedFileBuffersList) == 1     
+        call delete(g:BufferReminder_openedFileBuffersList) 
     endif 
  
     while(l:i <= bufnr('$')) 
@@ -86,10 +89,10 @@ func! s:SaveOpenedFilesList()
     endwhile 
  
     if len(l:ListVariable) > 0 
-        let l:reminderVersion = " V.0.3 "
+        let l:reminderVersion = " V.0.4 "
         let l:informationString = "Buffer Reminder" . l:reminderVersion . strftime("%d.%m.%Y %X")  
         call insert(l:ListVariable, l:informationString)
-        call writefile(l:ListVariable, g:openedFileBuffersList) 
+        call writefile(l:ListVariable, g:BufferReminder_openedFileBuffersList) 
     endif 
  
 endfunc 
@@ -97,11 +100,13 @@ endfunc
 func! s:OpenOpenedFilesList() 
 "//--------------------------------------------------------------------------------- 
  
-    if filereadable(g:openedFileBuffersList) == 1     
- 
+
+    if filereadable(g:BufferReminder_openedFileBuffersList) == 1     
+
+
         let l:i = 0 
         let l:ListOpenedBuffers = []
-        let l:fileLinesList  = readfile(g:openedFileBuffersList) 
+        let l:fileLinesList  = readfile(g:BufferReminder_openedFileBuffersList) 
         let l:lenthOfList = len(l:fileLinesList)
 
         "this is our file ?(check for abbreviation)
@@ -131,26 +136,34 @@ func! s:OpenOpenedFilesList()
 
  
                     "what type of open we prefer?
-                    if g:SaveOpenedFilesListBUFFER == 1
-                        exe "e " . l:fileLinesList[l:i] 
+                    if g:BufferReminder_SaveOpenedFilesListBUFFER == 1
+                       exe "e " . l:fileLinesList[l:i] 
                     else
-                        exe "tabedit " . l:fileLinesList[l:i] 
+                       exe "tabedit " . l:fileLinesList[l:i] 
                     endif
 
-                        let l:extention = expand("%:e")
-
-                        "extention fix
-                        "if no ext, set vim hi"
-                        if l:extention == ''
-                            let l:extention = "vim"
-                        endif
-                        exe "set syntax=" . l:extention 
+                       "DEPRICATED, many plugin needed normal initialize of buf (bufRead event must be done,not skiped)
+                       "//---------------------------------------------------------------------------------
+                       if g:BufferReminder_AllSyntaxOn == 0
+                            "extention fix, if no ext, set vim hi"
+                            let l:extention = expand("%:e")
+                            if l:extention == ''
+                                let l:extention = "vim"
+                            endif
+                            exe "set syntax=" . l:extention 
+                       endif
+                       "//---------------------------------------------------------------------------------
 
                     call add(l:ListOpenedBuffers, l:fileLinesList[l:i])
                     let l:i = l:i + 1 
  
             endwhile 
-            call delete(g:openedFileBuffersList) 
+            call delete(g:BufferReminder_openedFileBuffersList) 
+
+            if g:BufferReminder_removeNoNameBuffer == 1
+                exe "bw 1"
+            endif
+
     else 
         echo "Buffer Reminder: there is no file, skipping ..." 
     endif 
@@ -172,19 +185,22 @@ endfunc
 "//--------------------------------------------------------------------------------- 
 func! s:removeNoNameBuffer()
 "//---------------------------------------------------------------------------------
-
     "ByeBye NoName buffer !
-    if g:removeNoNameBuffer == 1
-        exe "bw 1"
-    endif
  
 endfunc
 "//---------------------------------------------------------------------------------
 
 "//---------------------------------------------------------------------------------
-autocmd VimLeavePre * :call s:SaveOpenedFilesList() 
-autocmd VimEnter    * :call s:OpenOpenedFilesList() 
-autocmd VimEnter    * :call s:removeNoNameBuffer() 
+
+autocmd VimLeavePre * call s:SaveOpenedFilesList() 
+
+autocmd VimEnter    * call s:removeNoNameBuffer() 
+
+if g:BufferReminder_AllSyntaxOn == 0
+    autocmd VimEnter *        call s:OpenOpenedFilesList() 
+else
+    autocmd VimEnter * nested call s:OpenOpenedFilesList()
+endif
 "//---------------------------------------------------------------------------------
 
 endif
