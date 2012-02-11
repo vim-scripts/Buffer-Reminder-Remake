@@ -3,12 +3,23 @@
 "Version: 0.6
 "Autor: Vakulenko Sergiy
 "Description: I rewrite this plugin because prev. version of plugin not work properly with tabs/windows.
+"
+"Versions change log
+"0.7
+"- load from file regex pattern was updated by '+' and '-' symbols
+"- added restore view of main window (help lines)
+"
+"
 "I recommend use vim tab concept with this plugin.
+"I tested more then 3 month this plugin before submit it. It's works perfectly. For you i hope too.
 
 "Sorry for this "soft" type of documentation. Next time i will create vim doc file.
-"Also you can mail me if you have supplementary questions options.
+"Also you can mail me if you have supplementary questions about options.
 "
 "
+
+
+
 
 
 "-------------------------------------------
@@ -55,7 +66,7 @@
 "todo: add algorithm which decide split option according to all windows columns/rows size in tab.
 
 "-------------------------------------------
-"Variable: g:BuffReminder_persistency_file ( string ('split' or 'vsplit' ) )
+"Variable: g:BuffReminder_persistency_file ( string )
 "-------------------------------------------
 "Description: this is path and name of persistency file. You can it redefine if default isn't good for you.
 
@@ -113,7 +124,7 @@ endif
 
 
 let g:buf_info_lst = []
-let g:buf_default_view_pos = [1,1]
+let g:buf_default_view_pos = [1,1,0]
 
 
 "//- FUNCTIONS DECLARATION -------------------------------------------------------------------
@@ -181,7 +192,8 @@ func! BufReminderRMX_GetActualfBuffInfo()
 endfunc
 
 func! BufReminderRMX_getTab0_CurrentTabPos()
-    return '0' . ' Last tab/win(' . tabpagenr() . ',' .  winnr() . ')'
+    let currTabPos = '0' . ' Last tab/win/lines(' . tabpagenr() . ',' .  winnr() . ',' . &lines . ')'
+    return currTabPos
 endfunc
 
 func! BufReminderRMX_getHiddenBuffers()
@@ -307,20 +319,22 @@ func! BufReminderRMX_LoadPersistency() "function to save buffers persistency inf
         if !empty(FileLinesList)
             "Decho('here#2')
 
-            let regex_persistency = 'buff_info:\([a-zA-Z0-9: \\_\/\.-]\+\)\s\([a-z_]\+\)\s\(\d\+\)\s\(\d\+\)\s\(\d\+\)'
-
+            let regex_persistency   = 'buff_info:\([a-zA-Z0-9: \\_\/\.\-\+]\+\)\s\([a-z_]\+\)\s\(\d\+\)\s\(\d\+\)\s\(\d\+\)'
+            let regex_tab_id_values = 'tab_id:\(\d\+\)\(\sLast\stab\/win\/lines(\(\d\+\),\(\d\+\),\(\d\+\))\)\?'
+                                                 "\1"     "\2"(all elem in brack)  "\3"     "\4"     "\5"
             let tab_id = 0
             let buf_info_list = []
             let tab_wins_info = ''
             for line in FileLinesList
                 if match(line, 'tab_id:') != -1
 
-                    let tab_id  = substitute(line,'tab_id:\(\d\+\)\(\sLast\stab\/win(\(\d\+\),\(\d\+\))\)\?','\1','')
+                    let tab_id  = substitute(line,regex_tab_id_values,'\1','')      "tab id
 
                     "this case if we want to reload view ( tab, win positions ) 
                     if match( line, 'Last\stab' ) != -1 && g:BuffReminderRMX_OpenFirstTabByDefault == 0
-                        let g:buf_default_view_pos[0] = substitute(line,'tab_id:\(\d\+\)\(\sLast\stab\/win(\(\d\+\),\(\d\+\))\)\?','\3','') "tab
-                        let g:buf_default_view_pos[1] = substitute(line,'tab_id:\(\d\+\)\(\sLast\stab\/win(\(\d\+\),\(\d\+\))\)\?','\4','') "win
+                        let g:buf_default_view_pos[0] = substitute(line,regex_tab_id_values ,'\3', '' ) "last tab
+                        let g:buf_default_view_pos[1] = substitute(line,regex_tab_id_values ,'\4', '' ) "last win
+                        let g:buf_default_view_pos[2] = substitute(line,regex_tab_id_values ,'\5', '' ) "last win lines (main window size)
                     endif
 
                 elseif match(line, 'buff_info:') != -1
@@ -403,8 +417,16 @@ func BufReminderRMX_OpenBuffer(fName, mode, win_id)
 endfunc
 
 fun! BufReminderRMX_reloadView()
-    exe 'tabnext ' . g:buf_default_view_pos[0]
+    "restore last tab view
+    exe 'tabnext ' . g:buf_default_view_pos[0] 
+
+    "restore last wnd view
     exe g:buf_default_view_pos[1] . 'wincmd w'
+
+    "restore last main window size; skip if this values is empty
+    if g:buf_default_view_pos[2] != 0
+        let &lines=g:buf_default_view_pos[2]
+    endif
 endfunc
 
 func! BufReminderRMX_SaveEvent()
@@ -419,12 +441,16 @@ func! BufReminderRMX_LoadEvent()
     call BufReminderRMX_OpenBuffersInList()
     call BufRemionderRMX_ClearList()
     call BufReminderRMX_reloadView()
+    call BufReminderRMX_CentrilizeWindow()
 endfunc
 
 func! BufRemionderRMX_ClearList()
     let g:buf_info_lst = [] "clear list
 endfunc
 
+func! BufReminderRMX_CentrilizeWindow()
+    exe "normal " . "zz"
+endfunc
 
 function BufHidden(bufnr)
     return empty(filter(map(range(1, tabpagenr('$')),

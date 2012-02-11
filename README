@@ -1,59 +1,73 @@
 This is a mirror of http://www.vim.org/scripts/script.php?script_id=2733
 
-"Name: Buffer reminder Remix version
-"Version: 0.6
-"Autor: Vakulenko Sergiy
-"Description: I rewrite (with new skills) this plugin because prev. version of plugin not work properly with tabs/windows.
-"I recommend use vim tab concept with this plugin.
+Name: Buffer reminder Remix version
+Version: 0.6
+Autor: Vakulenko Sergiy
+Description: I rewrite this plugin because prev. version of plugin not work properly with tabs/windows.
+
+Versions change log
+0.7
+- load from file regex pattern was updated by '+' and '-' symbols
+- added restore view of main window (help lines)
+
+
+I recommend use vim tab concept with this plugin.
+I tested more then 3 month this plugin before submit it. It's works perfectly. For you i hope too.
 
 Sorry for this "soft" type of documentation. Next time i will create vim doc file.
 Also you can mail me if you have supplementary questions about options.
 
-"-------------------------------------------
-"VARIABLES DESCRIPTION:
-"-------------------------------------------
 
-"-------------------------------------------
-"Variable: g:BuffReminder_enablePlugin (bool)
-"-------------------------------------------
-"Description: - by default - plugin is disabled. To make it work set BuffReminder_enablePlugin:
-"let g:BuffReminder_enablePlugin = 1
 
-"-------------------------------------------
-"Variable: g:BuffReminderRMX_OpenFirstTabByDefault (bool)
-"-------------------------------------------
-"Description: - open first tab by default
 
-"-------------------------------------------
-"Variable: g:BuffReminderRMX_ProjectFiles ( [] )
-"-------------------------------------------
-"Description: this variable is list of project files. Need to add
-"they to this list to make them treater by the right way (this file's will be
-"opened with 'Project ' <project_file>; also to skip project split 
-"Example:
-"let g:BuffReminderRMX_ProjectFiles          = ['C:\programs\gvim\vim_extention\projects\work_machine.projectfile'
-                                            "\, 'C:\programs\gvim\vim_extention\projects\home_machine.projectfile']
 
-"-------------------------------------------
-"Variable: g:BufReminderRMX_ignoreFilesList ( [] )
-"-------------------------------------------
-"Description: check if buff_name in ignore file list, and if yes, skip it
 
-"-------------------------------------------
-"Variable: g:BuffReminderRMX_Disable_Hidden ( bool )
-"-------------------------------------------
-"Description: if this option is enabled - all 'hidden' buffers (which isn't
-"showed in windows) will be skipped in save procedure
 
-"-------------------------------------------
-"Variable: g:BuffReminderRMX_Default_SplitMode ( string ('split' or 'vsplit' ) )
-"-------------------------------------------
-"Description: when page contain many split window with differents
-"possitions/size - on save - we can't decide what split mode was used. That why, the 'simplest' solution was to define window default split mode.
-"todo: add algorithm which decide split option according to all windows columns/rows size in tab.
+-------------------------------------------
+VARIABLES DESCRIPTION:
+-------------------------------------------
 
-"-------------------------------------------
-"Variable: g:BuffReminder_persistency_file ( string )
-"-------------------------------------------
-"Description: this is path and name of persistency file. You can it redefine if default isn't good for you.
+-------------------------------------------
+Variable: g:BuffReminder_enablePlugin (bool)
+-------------------------------------------
+Description: - by default - plugin is enabled. To make it work set BuffReminder_enablePlugin:
+let g:BuffReminder_enablePlugin = 1
+
+-------------------------------------------
+Variable: g:BuffReminderRMX_OpenFirstTabByDefault (bool)
+-------------------------------------------
+Description: - open first tab by default
+
+-------------------------------------------
+Variable: g:BuffReminderRMX_ProjectFiles ( [] )
+-------------------------------------------
+Description: this variable is list of project files. Need to add
+they to this list to make them treater by the right way (this file's will be
+opened with 'Project ' <project_file>; also to skip project split 
+Example:
+let g:BuffReminderRMX_ProjectFiles          = ['C:\programs\gvim\vim_extention\projects\work_machine.projectfile'
+                                            \, 'C:\programs\gvim\vim_extention\projects\home_machine.projectfile']
+
+-------------------------------------------
+Variable: g:BufReminderRMX_ignoreFilesList ( [] )
+-------------------------------------------
+Description: check if buff_name in ignore file list, and if yes, skip it
+
+-------------------------------------------
+Variable: g:BuffReminderRMX_Disable_Hidden ( bool )
+-------------------------------------------
+Description: if this option is enabled - all 'hidden' buffers (which isn't
+showed in windows) will be skipped in save procedure
+
+-------------------------------------------
+Variable: g:BuffReminderRMX_Default_SplitMode ( string ('split' or 'vsplit' ) )
+-------------------------------------------
+Description: when page contain many split window with differents
+possitions/size - on save - we can't decide what split mode was used. That why, the 'simplest' solution was to define window default split mode.
+todo: add algorithm which decide split option according to all windows columns/rows size in tab.
+
+-------------------------------------------
+Variable: g:BuffReminder_persistency_file ( string )
+-------------------------------------------
+Description: this is path and name of persistency file. You can it redefine if default isn't good for you.
 
