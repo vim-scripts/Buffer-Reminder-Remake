@@ -75,9 +75,13 @@ if v:version < 700 || &diff "skip load plugin if diff mode
     finish
 endif
 
-if !exists('g:BuffReminder_enablePlugin') "plugin not enabled
-    finish
+
+if exists('g:BuffReminder_enablePlugin') && g:BuffReminder_enablePlugin == 0  "plugin not enabled 
+        finish
 endif
+
+"enable plugin by default
+let g:BuffReminder_enablePlugin = 1
 
 
 
